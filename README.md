@@ -143,7 +143,7 @@ python notebooks/main.py
 
 ##  Catatan
 
-- Dataset hanya mencakup data tahun **2024** (Januari – Juli), sehingga analisis tren menggunakan **granulasi bulanan** (bukan tahunan)
+- Dataset hanya mencakup data tahun **2024-2026** (Januari – may), sehingga analisis tren menggunakan **granulasi bulanan** 
 - Virtual environment (`.venv/`) tidak di-push ke GitHub — gunakan langkah instalasi di atas
 - Pastikan memilih interpreter Python yang benar (`.venv`) saat menggunakan VSCode
 
