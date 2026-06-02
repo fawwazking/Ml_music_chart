@@ -1,6 +1,12 @@
 # eda.py
 
+import warnings
+warnings.filterwarnings('ignore')
+
 from pathlib import Path
+
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend — saves plots to file without opening GUI
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -34,7 +40,8 @@ plt.ylabel('Number of Songs')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'genre_distribution.png')
-plt.show()
+plt.close()
+print('Saved: genre_distribution.png')
 
 # Total streams by genre
 genre_streams = (
@@ -57,7 +64,8 @@ plt.ylabel('Streams')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'genre_streams.png')
-plt.show()
+plt.close()
+print('Saved: genre_streams.png')
 
 # Yearly trend
 yearly_trend = (
@@ -81,4 +89,5 @@ plt.ylabel('Streams')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'yearly_trend.png')
-plt.show()
+plt.close()
+print('Saved: yearly_trend.png')

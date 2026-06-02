@@ -1,11 +1,37 @@
 # forecasting.py
 
+import logging
+import os
+import sys
+import warnings
 from pathlib import Path
+
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend — saves plots to file without opening GUI
 
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import matplotlib.ticker as ticker
 from prophet import Prophet
+
+# Silence cmdstanpy and prophet logs to clean up output
+warnings.filterwarnings('ignore')
+logger_cmd = logging.getLogger('cmdstanpy')
+logger_cmd.disabled = True
+logger_cmd.propagate = False
+logger_cmd.handlers = []
+logger_cmd.setLevel(logging.ERROR)
+
+logger_prophet = logging.getLogger('prophet')
+logger_prophet.disabled = True
+logger_prophet.propagate = False
+
+# Force cmdstanpy to be quiet at the library level
+try:
+    import cmdstanpy
+    cmdstanpy.utils.get_logger().setLevel(logging.ERROR)
+except:
+    pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / 'data' / 'spotify_final_cleaned.csv'
@@ -27,12 +53,37 @@ trend_data = (
 
 trend_data.columns = ['ds', 'y']
 
-print(trend_data.head())
+# Add Year column for readability
+trend_data['Year'] = trend_data['ds'].dt.year
+
+print(trend_data[['Year', 'ds', 'y']].head())
 
 # Build Prophet model
 model = Prophet()
 
-model.fit(trend_data)
+class SuppressOutput:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        self._original_stderr = sys.stderr
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stderr.close()
+        sys.stdout = self._original_stdout
+        sys.stderr = self._original_stderr
+
+# Force cmdstanpy to be quiet at the library level
+try:
+    from cmdstanpy import install_cmdstan
+    import cmdstanpy
+    cmdstanpy.utils.get_logger().setLevel(logging.ERROR)
+except:
+    pass
+
+with SuppressOutput():
+    model.fit(trend_data)
 
 # Create future dataframe
 future = model.make_future_dataframe(
@@ -42,13 +93,24 @@ future = model.make_future_dataframe(
 # Forecast
 forecast = model.predict(future)
 
-print(forecast[['ds', 'yhat']].tail())
+# Add Year column to forecast output
+forecast['Year'] = forecast['ds'].dt.year
+
+# Format pandas float display for final printout (no scientific notation, use normal numbers)
+pd.set_option('display.float_format', lambda x: '%.0f' % x)
+print(forecast[['Year', 'ds', 'yhat']].tail())
 
 # Plot forecast
 fig = model.plot(forecast)
+ax = fig.gca()
+
+# Format Y-axis to show in Billions (Miliar) instead of 1e9 scientific notation
+ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x*1e-9:.2f} B'))
+plt.ylabel('Streams (Billions / Miliar)')
 
 plt.title('Music Streaming Forecast')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'forecasting_result.png')
-plt.show()
+plt.close()
+print('Saved: forecasting_result.png')

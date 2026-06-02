@@ -1,6 +1,12 @@
 # clustering.py
 
+import warnings
+warnings.filterwarnings('ignore')
+
 from pathlib import Path
+
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend — saves plots to file without opening GUI
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -74,7 +80,8 @@ plt.ylabel('Inertia')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'elbow_method.png')
-plt.show()
+plt.close()
+print('Saved: elbow_method.png')
 
 # K-Means clustering
 kmeans = KMeans(
@@ -121,4 +128,5 @@ plt.ylabel('Song Count')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'clustering_result.png')
-plt.show()
+plt.close()
+print('Saved: clustering_result.png')
