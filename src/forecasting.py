@@ -10,7 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
-from prophet import Prophet
+from prophet import Prophet  # type: ignore
 
 # Set non-interactive backend for matplotlib
 matplotlib.use('Agg')
@@ -30,7 +30,7 @@ logger_prophet.propagate = False
 
 # Force cmdstanpy to be quiet at the library level
 try:
-    import cmdstanpy
+    import cmdstanpy  # type: ignore
     cmdstanpy.utils.get_logger().setLevel(logging.ERROR)
 except Exception:
     pass
