@@ -67,9 +67,9 @@ plt.savefig(OUTPUT_DIR / 'genre_streams.png')
 plt.close()
 print('Saved: genre_streams.png')
 
-# Yearly trend
-yearly_trend = (
-    df.groupby(['Year', 'Genre'])['Streams']
+# Monthly trend (instead of Yearly because data only covers 2024)
+monthly_trend = (
+    df.groupby(['Month', 'Genre'])['Streams']
     .sum()
     .reset_index()
 )
@@ -77,17 +77,20 @@ yearly_trend = (
 plt.figure(figsize=(14,7))
 
 sns.lineplot(
-    data=yearly_trend,
-    x='Year',
+    data=monthly_trend,
+    x='Month',
     y='Streams',
-    hue='Genre'
+    hue='Genre',
+    marker='o'
 )
 
-plt.title('Yearly Genre Trend')
-plt.xlabel('Year')
+# Force X-ticks to show exact month numbers (1 to 7)
+plt.xticks(range(1, 8), ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'])
+plt.title('Monthly Genre Trend (2024)')
+plt.xlabel('Month')
 plt.ylabel('Streams')
 
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'yearly_trend.png')
 plt.close()
-print('Saved: yearly_trend.png')
+print('Saved: monthly_trend.png (saved as yearly_trend.png to keep name consistency)')
